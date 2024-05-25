@@ -1,5 +1,7 @@
+#include <TimerOne.h>
+
 // received command from BT
-char comanda = '0';
+char comanda = 'S';
 
 // motors
 int In1 = 7;
@@ -27,6 +29,11 @@ int ENB = 9;
 // motors speed
 int SPEED = 220;
 
+void buzzerISR() {
+  // Toggle the buzzer output
+  digitalWrite(buzzer, !digitalRead(buzzer));
+}
+
 void setup() {
 
   // pin setup
@@ -44,6 +51,10 @@ void setup() {
 
   // BT
   Serial.begin(9600);
+
+  // Set up TimerOne for the buzzer
+  Timer1.initialize(1000);
+  Timer1.attachInterrupt(buzzerISR); 
 }
 
 void loop() {
@@ -81,7 +92,7 @@ void loop() {
       digitalWrite(In4, LOW);
     } else if (comanda == 'H') {
       // play the buzzer
-      tone(buzzer, 1000);
+      Timer1.start();
     } else if (comanda == 'S'){
       // stop all
       digitalWrite(In1, LOW);
@@ -89,6 +100,7 @@ void loop() {
       digitalWrite(In3, LOW);
       digitalWrite(In4, LOW);
       noTone(buzzer);
+      Timer1.stop();
       current = voltLow;
 
     } else if (comanda == '1'){
